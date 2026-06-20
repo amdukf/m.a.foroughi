@@ -1,0 +1,18 @@
+services:
+
+ zabbix-agent:
+  extends:
+   file: compose_zabbix_components.yaml
+   service: agent2
+  image: "${ZABBIX_AGENT_IMAGE}:${ZABBIX_UBUNTU_IMAGE_TAG}${ZABBIX_IMAGE_TAG_POSTFIX}"
+  labels:
+   com.zabbix.os: "${UBUNTU_OS_TAG}"
+
+networks:
+  backend:
+    driver: bridge
+    enable_ipv6: "${BACKEND_ENABLE_IPV6}"
+    ipam:
+      driver: "${BACKEND_NETWORK_DRIVER}"
+      config:
+      - subnet: "${BACKEND_SUBNET}"

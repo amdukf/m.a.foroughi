@@ -1,0 +1,82 @@
+services:
+ server-db-init:
+  extends:
+   file: compose_zabbix_components.yaml
+   service: server-pgsql-db-init
+  image: "${ZABBIX_SERVER_PGSQL_IMAGE}:${ZABBIX_UBUNTU_IMAGE_TAG}${ZABBIX_IMAGE_TAG_POSTFIX}"
+  depends_on:
+   postgres-server:
+    condition: service_started
+  labels:
+   com.zabbix.os: "${UBUNTU_OS_TAG}"
+
+ zabbix-server:
+  extends:
+   file: compose_zabbix_components.yaml
+   service: server-pgsql
+  image: "${ZABBIX_SERVER_PGSQL_IMAGE}:${ZABBIX_UBUNTU_IMAGE_TAG}${ZABBIX_IMAGE_TAG_POSTFIX}"
+  depends_on:
+   server-db-init:
+    condition: service_completed_successfully
+  labels:
+   com.zabbix.os: "${UBUNTU_OS_TAG}"
+
+ zabbix-web-nginx-pgsql:
+  extends:
+   file: compose_zabbix_components.yaml
+   service: web-nginx-pgsql
+  image: "${ZABBIX_WEB_NGINX_PGSQL_IMAGE}:${ZABBIX_UBUNTU_IMAGE_TAG}${ZABBIX_IMAGE_TAG_POSTFIX}"
+  depends_on:
+   server-db-init:
+    condition: service_completed_successfully
+  labels:
+   com.zabbix.os: "${UBUNTU_OS_TAG}"
+
+ postgres-server:
+  extends:
+   file: compose_databases.yaml
+   service: postgres-server
+
+ db-data-pgsql:
+  extends:
+   file: compose_databases.yaml
+   service: db-data-pgsql
+
+networks:
+  frontend:
+    driver: bridge
+    enable_ipv6: "${FRONTEND_ENABLE_IPV6}"
+    ipam:
+      driver: "${FRONTEND_NETWORK_DRIVER}"
+      config:
+      - subnet: "${FRONTEND_SUBNET}"
+  backend:
+    driver: bridge
+    enable_ipv6: "${BACKEND_ENABLE_IPV6}"
+    internal: true
+    ipam:
+      driver: "${BACKEND_NETWORK_DRIVER}"
+      config:
+      - subnet: "${BACKEND_SUBNET}"
+  database:
+    driver: bridge
+    enable_ipv6: "${DATABASE_NETWORK_ENABLE_IPV6}"
+    internal: true
+    ipam:
+      driver: "${DATABASE_NETWORK_DRIVER}"
+  tools_frontend:
+    driver: bridge
+    enable_ipv6: "${ADD_TOOLS_ENABLE_IPV6}"
+    ipam:
+      driver: "${ADD_TOOLS_NETWORK_DRIVER}"
+      config:
+      - subnet: "${ADD_TOOLS_SUBNET}"
+
+volumes:
+  snmptraps:
+
+secrets:
+  POSTGRES_USER:
+    file: ${ENV_VARS_DIRECTORY}/.POSTGRES_USER
+  POSTGRES_PASSWORD:
+    file: ${ENV_VARS_DIRECTORY}/.POSTGRES_PASSWORD

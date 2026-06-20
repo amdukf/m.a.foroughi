@@ -1,0 +1,10 @@
+# Gitea readme
+
+Add this for better security:
+```
+vim /var/lib/docker/volumes/gitea_gitea-config/_data/app.ini
+DISABLE_REGISTRATION = true 
+SHOW_FOOTER_VERSION = false
+ENABLE_OPENID_SIGNIN = false
+ENABLE_OPENID_SIGNUP = false
+```

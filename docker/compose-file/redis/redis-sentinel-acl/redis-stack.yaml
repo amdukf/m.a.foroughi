@@ -1,0 +1,146 @@
+services:
+
+  redis-1:
+    image: redis:8.4.0
+    command: >
+      sh -c "cp /usr/local/etc/redis/redis.conf /data/redis.conf &&
+            redis-server /data/redis.conf"
+    configs:
+      - source: redis-1-conf
+        target: /usr/local/etc/redis/redis.conf
+      - source: redis-acl
+        target: /usr/local/etc/redis/users.acl
+    volumes:
+      - redis-1-data:/data
+    networks:
+      - redis-net
+    ports:
+      - target: 6379
+        published: 6379
+        mode: host
+    deploy:
+      placement:
+        constraints:
+          - node.labels.machine_disk == true
+          - node.labels.redis_name == redis-stream-1
+          - node.labels.datacenter == jordan
+      restart_policy:
+        condition: any
+
+  redis-2:
+    image: redis:8.4.0
+    command: >
+      sh -c "cp /usr/local/etc/redis/redis.conf /data/redis.conf &&
+            redis-server /data/redis.conf"
+    configs:
+      - source: redis-2-conf
+        target: /usr/local/etc/redis/redis.conf
+      - source: redis-acl
+        target: /usr/local/etc/redis/users.acl
+    volumes:
+      - redis-2-data:/data
+    networks:
+      - redis-net
+    ports:
+      - target: 6379
+        published: 6379
+        mode: host
+    deploy:
+      placement:
+        constraints:
+          - node.labels.machine_disk == true
+          - node.labels.redis_name == redis-stream-2
+          - node.labels.datacenter == lct
+      restart_policy:
+        condition: any
+
+  sentinel-1:
+    image: redis:8.4.0
+    command: >
+      sh -c "cp /usr/local/etc/redis/sentinel.conf /data/sentinel.conf &&
+            redis-sentinel /data/sentinel.conf"
+    configs:
+      - source: redis-sentinel-conf
+        target: /usr/local/etc/redis/sentinel.conf
+      - source: redis-stream-sentinel-acl
+        target: /usr/local/etc/redis/users.acl
+    networks:
+      - redis-net
+    ports:
+      - target: 26380
+        published: 26380
+        mode: host
+    deploy:
+      placement:
+        constraints:
+          - node.labels.redis_sentinel_name == redis-sentinel-1
+          - node.labels.datacenter == jordan
+      restart_policy:
+        condition: any
+
+  sentinel-2:
+    image: redis:8.4.0
+    command: >
+      sh -c "cp /usr/local/etc/redis/sentinel.conf /data/sentinel.conf &&
+            redis-sentinel /data/sentinel.conf"
+    configs:
+      - source: redis-sentinel-conf
+        target: /usr/local/etc/redis/sentinel.conf
+      - source: redis-stream-sentinel-acl
+        target: /usr/local/etc/redis/users.acl
+    networks:
+      - redis-net
+    ports:
+      - target: 26380
+        published: 26380
+        mode: host
+    deploy:
+      placement:
+        constraints:
+          - node.labels.redis_sentinel_name == redis-sentinel-2
+          - node.labels.datacenter == lct
+      restart_policy:
+        condition: any
+
+  sentinel-3:
+    image: redis:8.4.0
+    command: >
+      sh -c "cp /usr/local/etc/redis/sentinel.conf /data/sentinel.conf &&
+            redis-sentinel /data/sentinel.conf"
+    configs:
+      - source: redis-sentinel-conf
+        target: /usr/local/etc/redis/sentinel.conf
+      - source: redis-stream-sentinel-acl
+        target: /usr/local/etc/redis/users.acl
+    networks:
+      - redis-net
+    ports:
+      - target: 26380
+        published: 26380
+        mode: host
+    deploy:
+      placement:
+        constraints:
+          - node.labels.redis_sentinel_name == arbiter
+      restart_policy:
+        condition: any
+
+networks:
+  redis-net:
+    driver: overlay
+
+volumes:
+  redis-1-data:
+  redis-2-data:
+
+configs:
+  redis-1-conf:
+    file: ./config/redis-1.conf
+  redis-2-conf:
+    file: ./config/redis-2.conf
+  redis-sentinel-conf:
+    file: ./config/redis-sentinel.conf
+  redis-acl:
+      file: ./config/users.acl
+  redis-stream-sentinel-acl:
+      file: ./config/users-sentinel.acl

@@ -1,0 +1,5 @@
+user default off
+user admin on >5d580bc458a203f8e7eb ~* +@all allchannels
+user replica on >c24c2ed886c65bdefff7 +psync +replconf +ping +info +role
+user sentinel on >99540d17f0d2f0887ca2 ~* +@all allchannels
+user develop on >c8133e1a55aef5264c4e ~* +@all -@dangerous allchannels

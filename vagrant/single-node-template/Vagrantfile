@@ -1,0 +1,15 @@
+Vagrant.configure("2") do |config|
+  config.vm.define "node-0" do |node|
+    node.vm.box = "bento/ubuntu-24.04"
+    node.vm.box_version = "202502.21.0"
+    node.vm.hostname = "elliot"
+    node.vm.synced_folder ".", "/vagrant", disabled: true
+    node.vm.network "private_network", ip: "192.168.56.99"
+    node.vm.provider "virtualbox" do |my_vm|
+      my_vm.name = "node-0"
+      my_vm.memory = 2048
+      my_vm.cpus = 1
+    end
+    node.vm.provision :shell, path: "bootstrap.sh"
+  end
+end

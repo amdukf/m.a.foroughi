@@ -1,0 +1,24 @@
+Vagrant.configure("2") do |config|
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  ["node-0", "node-1", "node-2"].each_with_index do |name, i|
+    config.vm.define name do |node|
+      node.vm.box = "bento/ubuntu-22.04"
+      node.vm.box_version = "202508.03.0"
+      node.vm.hostname = name
+      node.vm.network "private_network", ip: "192.168.56.#{20 + i}"
+      node.vm.provider "virtualbox" do |vb|
+        vb.name = name
+        vb.memory = 2048
+        vb.cpus = 1
+      end
+
+      # Add 3 disks (10GB each)
+      node.vm.disk :disk, name: "disk0.vdi", size: "7GB"
+      node.vm.disk :disk, name: "disk1.vdi", size: "7GB"
+      node.vm.disk :disk, name: "disk2.vdi", size: "7GB"
+
+      node.vm.provision :shell, path: "bootstrap.sh"
+    end
+  end
+end

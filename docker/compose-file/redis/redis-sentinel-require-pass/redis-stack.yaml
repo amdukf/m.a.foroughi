@@ -1,0 +1,87 @@
+services:
+
+  redis-master:
+    image: redis:8.4.0
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    configs:
+      - source: redis-master-conf
+        target: /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-master-data:/data
+    networks:
+      - redis-net
+    deploy:
+      placement:
+        constraints:
+          - node.labels.redis_role == master
+      restart_policy:
+        condition: any
+
+  redis-replica1:
+    image: redis:8.4.0
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    configs:
+      - source: redis-replica1-conf
+        target: /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-replica1-data:/data
+    networks:
+      - redis-net
+    deploy:
+      placement:
+        constraints:
+          - node.labels.redis_role == replica1
+      restart_policy:
+        condition: any
+
+  redis-replica2:
+    image: redis:8.4.0
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    configs:
+      - source: redis-replica2-conf
+        target: /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-replica2-data:/data
+    networks:
+      - redis-net
+    deploy:
+      placement:
+        constraints:
+          - node.labels.redis_role == replica2
+      restart_policy:
+        condition: any
+
+  sentinel:
+    image: redis:8.4.0
+    command: >
+      sh -c "cp /usr/local/etc/redis/sentinel.conf /data/sentinel.conf &&
+            redis-sentinel /data/sentinel.conf"
+    configs:
+      - source: redis-sentinel-conf
+        target: /usr/local/etc/redis/sentinel.conf
+    networks:
+      - redis-net
+    deploy:
+      mode: global
+      restart_policy:
+        condition: any
+
+networks:
+  redis-net:
+    driver: overlay
+
+volumes:
+  redis-master-data:
+  redis-replica1-data:
+  redis-replica2-data:
+  sentinel-data:
+
+configs:
+  redis-master-conf:
+    file: ./config/redis-master.conf
+  redis-replica1-conf:
+    file: ./config/redis-replica1.conf
+  redis-replica2-conf:
+    file: ./config/redis-replica2.conf
+  redis-sentinel-conf:
+    file: ./config/redis-sentinel.conf

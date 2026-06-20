@@ -1,0 +1,65 @@
+Vagrant.configure("2") do |config|
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # Router1
+  config.vm.define "router1" do |node|
+    node.vm.box = "bento/ubuntu-24.04"
+    node.vm.box_version = "202502.21.0"
+    node.vm.hostname = "router1"
+    # LAN subnet1
+    node.vm.network "private_network", ip: "10.0.1.1", virtualbox__intnet: "net1"
+    # WAN link
+    node.vm.network "private_network", ip: "172.16.17.18", virtualbox__intnet: "net-wan"
+    node.vm.provider "virtualbox" do |my_vm|
+      my_vm.name = "router1"
+      my_vm.memory = 1024
+      my_vm.cpus = 1
+    end
+    node.vm.provision :shell, path: "bootstrap.sh"
+  end
+
+  # Router2
+  config.vm.define "router2" do |node|
+    node.vm.box = "bento/ubuntu-24.04"
+    node.vm.box_version = "202502.21.0"
+    node.vm.hostname = "router2"
+    # LAN subnet2
+    node.vm.network "private_network", ip: "10.0.2.1", virtualbox__intnet: "net2"
+    # WAN link
+    node.vm.network "private_network", ip: "172.16.17.19", virtualbox__intnet: "net-wan"
+    node.vm.provider "virtualbox" do |my_vm|
+      my_vm.name = "router2"
+      my_vm.memory = 1024
+      my_vm.cpus = 1
+    end
+    node.vm.provision :shell, path: "bootstrap.sh"
+  end
+
+  # Client behind Router1
+  config.vm.define "client1" do |node|
+    node.vm.box = "bento/ubuntu-24.04"
+    node.vm.box_version = "202502.21.0"
+    node.vm.hostname = "client1"
+    node.vm.network "private_network", ip: "10.0.1.10", virtualbox__intnet: "net1"
+    node.vm.provider "virtualbox" do |my_vm|
+      my_vm.name = "client1"
+      my_vm.memory = 512
+      my_vm.cpus = 1
+    end
+    node.vm.provision :shell, path: "bootstrap.sh"
+  end
+
+  # Client behind Router2
+  config.vm.define "client2" do |node|
+    node.vm.box = "bento/ubuntu-24.04"
+    node.vm.box_version = "202502.21.0"
+    node.vm.hostname = "client2"
+    node.vm.network "private_network", ip: "10.0.2.10", virtualbox__intnet: "net2"
+    node.vm.provider "virtualbox" do |my_vm|
+      my_vm.name = "client2"
+      my_vm.memory = 512
+      my_vm.cpus = 1
+    end
+    node.vm.provision :shell, path: "bootstrap.sh"
+  end
+end

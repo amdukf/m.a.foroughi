@@ -1,0 +1,30 @@
+networks:
+  gitea:
+    external: false
+
+volumes:
+  gitea-data:
+    driver: local
+  gitea-config:
+    driver: local
+
+services:
+  server:
+#    image: docker.gitea.com/gitea:1.25.5-rootless
+    image: gitea/gitea:1.25.5-rootless
+    container_name: gitea
+#    environment:
+#      - USER_UID=1000
+#      - USER_GID=1000
+    restart: always
+    networks:
+      - gitea
+    volumes:
+      - gitea-data:/var/lib/gitea
+      - gitea-config:/etc/gitea
+#      - ./gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "25589:25589"
