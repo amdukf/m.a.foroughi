@@ -1,0 +1,41 @@
+{
+  "inbounds": [
+    {
+      "port": 1410,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "UUID",
+            "level": 0
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "none",
+        "wsSettings": {
+          "path": "/api/v1/users/tyrell",
+          "Headers": {
+             "Host": "DOMAIN_NAME"
+          }
+        }
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "socks-out",
+      "protocol": "socks",
+      "settings": {
+        "servers": [
+          {
+            "address": "ss",
+            "port": 9080
+          }
+        ]
+      }
+    }
+  ]
+}

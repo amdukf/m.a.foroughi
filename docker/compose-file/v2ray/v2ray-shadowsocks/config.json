@@ -1,0 +1,10 @@
+{
+    "server":["SERVER_IP_ADDRESS"],
+    "mode":"tcp_and_udp",
+    "server_port":9724,
+    "local_address": "0.0.0.0",
+    "local_port":9080,
+    "password":"PASSWORD",
+    "timeout":86400,
+    "method":"chacha20-ietf-poly1305"
+}

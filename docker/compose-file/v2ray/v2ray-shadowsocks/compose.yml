@@ -1,0 +1,35 @@
+services:
+  v2ray:
+    container_name: v2ray-vless
+    image: v2fly/v2fly-core:${V2RAY_IMAGE_TAG}
+    restart: always
+    command: run -config /etc/v2ray/config.json
+    ports:
+      - 127.0.0.1:1410:1410
+    env_file:
+      - .env
+    environment:
+      - v2ray.vmess.aead.forced=false
+    volumes:
+      - ./v2ray.json:/etc/v2ray/config.json
+    networks:
+      - asir_net
+
+  shadowsocks:
+    image: shadowsocks/shadowsocks-libev:${SHADOWSOCKS_IMAGE_TAG}
+    container_name: ss
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:9080:9080/tcp"
+      - "127.0.0.1:9080:9080/udp"
+    volumes:
+      - ./config.json:/etc/shadowsocks-libev/config.json
+    command: ss-local -c /etc/shadowsocks-libev/config.json
+    restart: always
+    networks:
+      - asir_net
+
+networks:
+  asir_net:
+    driver: bridge
